@@ -1,6 +1,12 @@
 package track.lessons.lesson1;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.lang.Long;
+import java.nio.Buffer;
+
+import static java.lang.Long.parseLong;
 
 /**
  * Задание 1: Реализовать два метода
@@ -31,7 +37,19 @@ public class CountWords {
      * @return - целое число - сумма всех чисел из файла
      */
     public long countNumbers(File file) throws Exception {
-        return 0;
+        long sum = 0;
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        String cl = br.readLine();
+        while (cl != null) {
+            if (cl.length() != 0) {
+                if ((cl.charAt(0) >= '0') && (cl.charAt(0) <= '9')) {
+                    sum += parseLong(cl);
+                }
+            }
+            cl = br.readLine();
+        }
+        return sum;
     }
 
 
@@ -43,7 +61,22 @@ public class CountWords {
      * @return - результирующая строка
      */
     public String concatWords(File file) throws Exception {
-        return null;
+        String res = "";
+        FileReader fr = new FileReader(file);
+        BufferedReader br = new BufferedReader(fr);
+        String cl = br.readLine();
+        while (cl != null) {
+            if (cl.length() != 0) {
+                if ((cl.charAt(0) < '0') || (cl.charAt(0) > '9')) {
+                    if (res.length() > 0) {
+                        res += " ";
+                    }
+                    res += cl;
+                }
+            }
+            cl = br.readLine();
+        }
+        return res;
     }
 
 }
