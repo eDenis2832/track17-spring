@@ -18,6 +18,7 @@ public class Main {
     static Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) throws Exception {
+        /*
         Transformer<Image> transformer = new Transformer<>();
         Image image = Network.loadImage();
 
@@ -30,9 +31,11 @@ public class Main {
 
         CompletableFuture<Void> store = transform.thenAccept(Network::store);
         store.get();
+        */
     }
 
     static class Network {
+        /*
         public static Image loadImage() {
             byte[] data = new byte[] {1, 2, 3};
             ImageInfo info = new ImageInfo(100 ,100, "png");
@@ -45,6 +48,7 @@ public class Main {
             log.info("Store finished.");
             return image.getImageInfo();
         }
+        */
     }
 
 }

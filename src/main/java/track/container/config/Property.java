@@ -1,5 +1,8 @@
 package track.container.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Описание тега property в xml конфигурации.
  * Тег описывает поля определенного бина
@@ -9,11 +12,15 @@ public class Property {
     private String value; // Значение поля
     private ValueType type; // Метка ссылочное значение или примитив
 
-    public Property(String name, String value, ValueType type) {
+    @JsonCreator
+    public Property(@JsonProperty("name") String name,
+                    @JsonProperty("value") String value,
+                    @JsonProperty("type") ValueType type) {
         this.name = name;
         this.value = value;
         this.type = type;
     }
+
 
     public String getName() {
         return name;

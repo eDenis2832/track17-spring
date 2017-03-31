@@ -1,5 +1,8 @@
 package track.container.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Map;
 
 /**
@@ -8,6 +11,7 @@ import java.util.Map;
 public class Bean {
 
     private String id; // Уникальный ID бина
+
     private String className; // Класс бина
 
     /*
@@ -19,7 +23,10 @@ public class Bean {
      */
     private Map<String, Property> properties; // Набор полей бина ИмяПоля-Значение
 
-    public Bean(String id, String className, Map<String, Property> properties) {
+    @JsonCreator
+    public Bean(@JsonProperty("id") String id,
+                @JsonProperty("className") String className,
+                @JsonProperty("properties") Map<String, Property> properties) {
         this.id = id;
         this.className = className;
         this.properties = properties;
