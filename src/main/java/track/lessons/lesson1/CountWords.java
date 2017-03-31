@@ -61,7 +61,7 @@ public class CountWords {
      * @return - результирующая строка
      */
     public String concatWords(File file) throws Exception {
-        String res = "";
+        StringBuilder res = new StringBuilder("");
         FileReader fr = new FileReader(file);
         BufferedReader br = new BufferedReader(fr);
         String cl = br.readLine();
@@ -69,14 +69,14 @@ public class CountWords {
             if (cl.length() != 0) {
                 if ((cl.charAt(0) < '0') || (cl.charAt(0) > '9')) {
                     if (res.length() > 0) {
-                        res += " ";
+                        res.append(" ");
                     }
-                    res += cl;
+                    res.append(cl);
                 }
             }
             cl = br.readLine();
         }
-        return res;
+        return res.toString();
     }
 
 }
