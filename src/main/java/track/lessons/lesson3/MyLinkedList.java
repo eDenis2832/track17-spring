@@ -37,7 +37,7 @@ public class MyLinkedList extends List implements Stack, Queue {
     }
 
     @Override
-    void add(int item) {
+    public void add(int item) {
 
         Node newnode = new Node(tail, null, item);
         if (tail != null) {
@@ -48,19 +48,18 @@ public class MyLinkedList extends List implements Stack, Queue {
         if (head == null) {
             head = newnode;
         }
-        size++;
+        incrementSize();
     }
 
     @Override
-    int remove(int idx) throws NoSuchElementException {
-        int it;
-        Node node;
-
-        if ((idx < 0) || (idx >= size)) {
+    public int remove(int idx) throws NoSuchElementException {
+        if ((idx < 0) || (idx >= size())) {
             throw new NoSuchElementException();
         }
 
-        node = head;
+        int it;
+        Node node = head;
+
         for (it = 1; it <= idx; it++) {
             node = node.next;
         }
@@ -68,28 +67,35 @@ public class MyLinkedList extends List implements Stack, Queue {
         int res;
         res = node.val;
 
+
+        if (tail == node) {
+            tail = node.prev;
+        }
+
+        if (head == node) {
+            head = node.next;
+        }
+
         if (node.prev != null) {
             node.prev.next = node.next;
         }
         if (node.next != null) {
             node.next.prev = node.prev;
         }
-        size--;
+        decrementSize();
 
         return res;
 
     }
 
     @Override
-    int get(int idx) throws NoSuchElementException {
-        int it;
-        Node node;
-
-        if ((idx < 0) || (idx >= size)) {
+    public int get(int idx) throws NoSuchElementException {
+        if ((idx < 0) || (idx >= size())) {
             throw new NoSuchElementException();
         }
 
-        node = head;
+        int it;
+        Node node = head;
         for (it = 1; it <= idx; it++) {
             node = node.next;
         }
@@ -97,27 +103,25 @@ public class MyLinkedList extends List implements Stack, Queue {
         return node.val;
     }
 
+    @Override
     public void push(int value) {
         add(value);
 
     }
 
+    @Override
     public int pop() {
-        return remove(size - 1);
+        return remove(size() - 1);
     }
 
+    @Override
     public void enqueue(int value) {
         add(value);
     }
 
+    @Override
     public int dequeu() {
         return remove(0);
     }
 
-    /*
-    @Override
-    int size() {
-        return 0;
-    }
-    */
 }

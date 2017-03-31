@@ -80,4 +80,48 @@ public class MyArrayListTest {
 
         Assert.assertTrue(list.size() == 0);
     }
+
+    @Test
+    public void mytest1() throws Exception {
+        List list = new MyArrayList();
+
+        Assert.assertEquals(0, list.size());
+        list.add(1);
+        Assert.assertEquals(1, list.size());
+        Assert.assertEquals(1, list.get(0));
+
+        list.remove(0);
+        Assert.assertEquals(0, list.size());
+    }
+
+
+    @Test
+    public void mytest2() throws Exception {
+        List list = new MyArrayList();
+
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(4);
+
+        Assert.assertEquals(1, list.get(0));
+        Assert.assertEquals(2, list.get(1));
+        Assert.assertEquals(3, list.get(2));
+        Assert.assertEquals(3, list.get(2));
+
+        list.remove(2);
+
+        Assert.assertEquals(1, list.get(0));
+        Assert.assertEquals(2, list.get(1));
+        Assert.assertEquals(4, list.get(2));
+
+        list.remove(0);
+
+        Assert.assertEquals(2, list.get(0));
+        Assert.assertEquals(4, list.get(1));
+
+        list.remove(0);
+
+        Assert.assertEquals(4, list.get(0));
+    }
 }

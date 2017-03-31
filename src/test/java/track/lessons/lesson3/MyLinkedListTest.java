@@ -3,6 +3,7 @@ package track.lessons.lesson3;
 import java.util.NoSuchElementException;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -55,5 +56,43 @@ public class MyLinkedListTest {
         list.remove(0);
 
         Assert.assertTrue(list.size() == 0);
+    }
+
+    @Test
+    public void mytest1() throws Exception {
+        MyLinkedList list = new MyLinkedList();
+
+        list.push(1);
+
+        Assert.assertEquals(1, list.pop());
+        Assert.assertEquals(0, list.size());
+
+        list.push(1);
+        list.push(2);
+        list.push(3);
+
+        Assert.assertEquals(1, list.get(0));
+        Assert.assertEquals(2, list.get(1));
+        Assert.assertEquals(3, list.get(2));
+
+        Assert.assertEquals(3, list.pop());
+
+        Assert.assertEquals(1, list.get(0));
+        Assert.assertEquals(2, list.get(1));
+
+        Assert.assertEquals(2, list.pop());
+
+        Assert.assertEquals(1, list.get(0));
+
+        Assert.assertEquals(1, list.pop());
+        Assert.assertEquals(0, list.size());
+    }
+
+    @Test
+    public void mytest2() throws Exception {
+        MyLinkedList list = new MyLinkedList();
+
+        list.push(1);
+        Assert.assertEquals(1, list.get(0));
     }
 }

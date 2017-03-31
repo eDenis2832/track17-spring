@@ -26,43 +26,39 @@ public class MyArrayList extends List {
     }
 
     @Override
-    void add(int item) {
-        if (size == array.length) {
+    public void add(int item) {
+        if (size() == array.length) {
             int[] newarray;
             newarray = new int[(array.length + 1) * 2];
             System.arraycopy(array, 0, newarray, 0, array.length);
             array = newarray;
         }
         //System.out.println("array len " + array.length + " size " + size);
-        array[size]  = item;
-        size += 1;
+        array[size()]  = item;
+        incrementSize();
     }
 
     @Override
-    int remove(int idx) throws NoSuchElementException {
-        int res;
-        int it;
-        if ((idx < 0) || (idx >= size)) {
+    public int remove(int idx) throws NoSuchElementException {
+        if ((idx < 0) || (idx >= size())) {
             throw new NoSuchElementException();
         }
-        res = array[idx];
-        for (it = idx; it <= size - 2; it++) {
+
+        int res = array[idx];
+        int it;
+
+        for (it = idx; it <= size() - 2; it++) {
             array[it] = array[it + 1];
         }
-        size--;
+        decrementSize();
         return res;
     }
 
     @Override
-    int get(int idx) throws NoSuchElementException {
-        if ((idx < 0) || (idx >= size)) {
+    public int get(int idx) throws NoSuchElementException {
+        if ((idx < 0) || (idx >= size())) {
             throw new NoSuchElementException();
         }
         return array[idx];
-    }
-
-    @Override
-    int size() {
-        return size;
     }
 }
