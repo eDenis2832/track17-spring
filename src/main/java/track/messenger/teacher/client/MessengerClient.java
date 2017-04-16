@@ -18,6 +18,8 @@ import track.messenger.net.Protocol;
 import track.messenger.net.ProtocolException;
 import track.messenger.net.StringProtocol;
 
+import static java.lang.Long.parseLong;
+
 
 /**
  *
@@ -114,6 +116,11 @@ public class MessengerClient {
                 user = loginSuccessMessage.user;
                 System.out.print("Logged succesful! You are " + user);
                 break;
+            case MSG_TEXT:
+                TextMessage textMessage = (TextMessage) msg;
+                System.out.print("Message from chat " + textMessage.chatId +
+                ": " + textMessage.senderName + ": " + textMessage.text);
+                break;
             default:
                 log.error("Invalid message, ignoring it: {}", msg);
         }
@@ -145,16 +152,20 @@ public class MessengerClient {
                 // FIXME: пример реализации для простого текстового сообщения
                 TextMessage sendMessage = new TextMessage();
                 sendMessage.type = Type.MSG_TEXT;
+                sendMessage.senderId = user.id;
+
+                sendMessage.senderName = user.login;
+                sendMessage.chatId = parseLong(tokens[1]);
 
                 StringBuilder strB = new StringBuilder();
-                for (int i = 1; i < tokens.length; i++) {
+                for (int i = 2; i < tokens.length; i++) {
                     strB.append(tokens[i]);
                     if (i != tokens.length - 1) {
                         strB.append(" ");
                     }
                 }
 
-                sendMessage.setText(strB.toString());
+                sendMessage.text = strB.toString();
                 send(sendMessage);
                 break;
             // TODO: implement another types from wiki

@@ -7,9 +7,12 @@ import java.util.Objects;
  */
 public class TextMessage extends Message {
 
-    private String text;
-    private long chatId;
+    public long chatId;
+    public String senderName;
+    public String text;
 
+
+    /*
     public String getText() {
         return text;
     }
@@ -41,6 +44,7 @@ public class TextMessage extends Message {
     public int hashCode() {
         return Objects.hash(super.hashCode(), text);
     }
+    */
 
     @Override
     public String toString() {

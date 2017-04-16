@@ -25,11 +25,11 @@ public class StringProtocol implements Protocol {
             case MSG_TEXT: //
                 TextMessage textMsg = new TextMessage();
                 textMsg.type = type;
+                textMsg.senderId = parseLong(tokens[1]);
 
-
-                //textMsg.setChatId(parseLong(tokens[2]));
-                textMsg.setText(tokens[2]);
-
+                textMsg.chatId = parseLong(tokens[2]);
+                textMsg.senderName = tokens[3];
+                textMsg.text = tokens[4];
                 return textMsg;
             case MSG_LOGIN:
                 LoginMessage loginMsg = new LoginMessage();
@@ -69,7 +69,9 @@ public class StringProtocol implements Protocol {
         switch (type) {
             case MSG_TEXT:
                 TextMessage sendMessage = (TextMessage) msg;
-                builder.append(sendMessage.getText()).append(DELIMITER);
+                builder.append(sendMessage.chatId).append(DELIMITER);
+                builder.append(sendMessage.senderName).append(DELIMITER);
+                builder.append(sendMessage.text).append(DELIMITER);
                 break;
             case MSG_LOGIN:
                 LoginMessage loginMsg = (LoginMessage) msg;

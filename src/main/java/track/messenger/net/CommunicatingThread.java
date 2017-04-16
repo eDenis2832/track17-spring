@@ -1,3 +1,4 @@
+/*
 package track.messenger.net;
 
 import java.io.InputStream;
@@ -16,9 +17,6 @@ import track.messenger.store.MessageStore;
 import track.messenger.store.UserStore;
 import track.messenger.User;
 
-/**
- * Created by denis on 11.04.17.
- */
 public class CommunicatingThread extends Thread {
 
     static Logger log = LoggerFactory.getLogger(CommunicatingThread.class);
@@ -122,3 +120,4 @@ public class CommunicatingThread extends Thread {
         }
     }
 }
+*/
