@@ -1,9 +1,11 @@
 package track.messenger;
 
+import java.io.Serializable;
+
 /**
  *
  */
-public class User {
+public class User implements Serializable {
     public long id;
 
     public String login;

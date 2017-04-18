@@ -58,8 +58,11 @@ public class RamUserStore implements UserStore {
         users = new ArrayList<>();
 
         //for testing
+        User nobody = new User(0, "nobody", "nocity", "nobody");
         User user1 = new User(1, "user1", "Moscow", "pass1");
         User user2 = new User(2, "user2", "Moscow", "pass2");
+
+        addUser(nobody);
         addUser(user1);
         addUser(user2);
      }

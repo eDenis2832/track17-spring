@@ -9,8 +9,7 @@ import track.messenger.store.RamMessageStore;
 import track.messenger.store.RamUserStore;
 import track.messenger.store.UserStore;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
@@ -29,22 +28,16 @@ public class MessengerServer {
 
     Protocol protocol;
 
-    //private InputStream in;
-    //private OutputStream out;
-    Map<Long, OutputStream> userOuts = new TreeMap<>();
-
     UserStore userStore;
     MessageStore messageStore;
-
 
     public class CommunicatingThread extends Thread {
 
         User user;
 
-        private Socket socket;
+        private ServerCommunicator communicator;
 
-        private InputStream in;
-        private OutputStream out;
+        private Socket socket; //?
 
         void onMessage(Message message) {
             log.info("Message received: {}", message);
@@ -56,13 +49,13 @@ public class MessengerServer {
                         log.info("Logging in with login {} and password {} failed",
                                 loginMessage.login, loginMessage.password);
                         LoginFailedMessage loginFailedMessage = new LoginFailedMessage();
-                        sendMessage(loginFailedMessage);
+                        communicator.sendMessage(loginFailedMessage);
                     } else {
                         log.info("User {} is logged in", currentUser.login);
                         LoginSuccessMessage loginSuccessMessage = new LoginSuccessMessage(currentUser);
-                        sendMessage(loginSuccessMessage);
+                        communicator.sendMessage(loginSuccessMessage);
                         user = currentUser;
-                        userOuts.put(user.id, out);
+                        communicator.addUser(user.id); //or setUserOnline
                     }
                     break;
 
@@ -71,7 +64,7 @@ public class MessengerServer {
                     messageStore.addMessage(textMessage.chatId, textMessage);
 
                     for (Long i: messageStore.getUsersByChatId(textMessage.chatId)) {
-                        sendMessage(i, textMessage);
+                        communicator.sendMessage(i, textMessage);
                     }
 
                     break;
@@ -93,28 +86,6 @@ public class MessengerServer {
             }
         }
 
-        void sendMessage(Message message) {
-            try {
-                log.info("Sending message " + message.toString());
-                out.write(protocol.encode(message));
-                out.flush();
-            } catch (Exception e) {
-                log.error("Error while sending message: {}", e);
-            }
-        }
-
-        void sendMessage(Long userId, Message message) {
-            OutputStream outputStream = userOuts.get(userId);
-            if (outputStream != null) {
-                try {
-                    log.info("Sending message " + message.toString() + " to user " + userId);
-                    outputStream.write(protocol.encode(message));
-                    outputStream.flush();
-                } catch (Exception e) {
-                    log.error("Error while sending message: {}", e);
-                }
-            }
-        }
 
         @Override
         public void run() {
@@ -125,8 +96,7 @@ public class MessengerServer {
 
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    read = in.read(buf);
-                    Message msg = protocol.decode(Arrays.copyOf(buf, read));
+                    Message msg = communicator.getMessage();
                     onMessage(msg);
                 } catch (Exception e) {
                     log.error("Some error occured: {}", e);
@@ -138,9 +108,8 @@ public class MessengerServer {
 
         public CommunicatingThread(Socket socket) {
             try {
-                this.socket = socket;
-                in = socket.getInputStream();
-                out = socket.getOutputStream();
+                this.socket = socket; //?
+                this.communicator = new SerializingServerCommunicator(socket);
             } catch (Exception e) {
                 log.error("Some error when initializing thread: {}", e);
                 e.printStackTrace();
@@ -157,9 +126,13 @@ public class MessengerServer {
 
     public static void main(String[] args) {
         Socket cs;
-
-        MessengerServer server = new MessengerServer(19000);
-
+        MessengerServer server;
+        try {
+            server = new MessengerServer(19000);
+        } catch (Exception e) {
+            log.error("Error when initalizing: " + e);
+            return;
+        }
 
         while (true) {
             try {
@@ -171,13 +144,10 @@ public class MessengerServer {
         }
     }
 
-    public MessengerServer(int port) {
+    public MessengerServer(int port) throws IOException {
         this.port = port;
-        try {
-            serverSocket = new ServerSocket(this.port);
-        } catch (Exception e) {
-            log.error("Error when creating ServerSocket: {}", e);
-        }
+
+        serverSocket = new ServerSocket(this.port);
 
         userStore = new RamUserStore();
         messageStore = new RamMessageStore();

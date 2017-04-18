@@ -1,9 +1,7 @@
 package track.messenger.teacher.client;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -14,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import track.messenger.User;
 import track.messenger.messages.*;
 import track.messenger.messages.Type.*;
+import track.messenger.net.Communicator;
 import track.messenger.net.Protocol;
 import track.messenger.net.ProtocolException;
 import track.messenger.net.StringProtocol;
@@ -46,6 +45,14 @@ public class MessengerClient {
     private InputStream in;
     private OutputStream out;
 
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
+
+    Communicator clientCommunicator;
+
+    Thread socketListenerThread;
+
+
     User user;
 
     public Protocol getProtocol() {
@@ -72,20 +79,27 @@ public class MessengerClient {
         this.host = host;
     }
 
-    public void initSocket() throws IOException {
+    public void initSocket() throws Exception {
         Socket socket = new Socket(host, port);
-        in = socket.getInputStream();
-        out = socket.getOutputStream();
+        //in = socket.getInputStream();
+        //out = socket.getOutputStream();
+
+        clientCommunicator = new ClientCommunicator(socket);
+        //ois = new ObjectInputStream(socket.getInputStream());
+        //oos = new ObjectOutputStream(socket.getOutputStream());
+
+
 
         /*
       Тред "слушает" сокет на наличие входящих сообщений от сервера
      */
-        Thread socketListenerThread = new Thread(() -> {
+        socketListenerThread = new Thread(() -> {
             final byte[] buf = new byte[1024 * 64];
             log.info("Starting listener thread...");
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     // Здесь поток блокируется на ожидании данных
+                    /*
                     int read = in.read(buf);
                     if (read > 0) {
 
@@ -93,6 +107,13 @@ public class MessengerClient {
                         Message msg = protocol.decode(Arrays.copyOf(buf, read));
                         onMessage(msg);
                     }
+                    */
+
+                    //Message msg = (Message) ois.readObject();
+
+                    Message msg = clientCommunicator.getMessage();
+                    onMessage(msg);
+
                 } catch (Exception e) {
                     log.error("Failed to process connection: {}", e);
                     e.printStackTrace();
@@ -137,13 +158,21 @@ public class MessengerClient {
         switch (cmdType) {
             case "/login":
                 // TODO: реализация
-                LoginMessage loginMessage = new LoginMessage();
 
                 if (tokens.length == 3) {
+                    LoginMessage loginMessage = new LoginMessage();
                     loginMessage.login = tokens[1];
                     loginMessage.password = tokens[2];
+                    clientCommunicator.sendMessage(loginMessage);
+                } else if (tokens.length == 1) {
+                    LoginMessage loginMessage = new LoginMessage();
+                    loginMessage.login = "nobody";
+                    loginMessage.password = "nobody";
+                    clientCommunicator.sendMessage(loginMessage);
+                } else {
+                    System.out.println("Incorrect input! Please, try again.");
                 }
-                send(loginMessage);
+
                 break;
             case "/help":
                 // TODO: реализация
@@ -155,7 +184,9 @@ public class MessengerClient {
                 sendMessage.senderId = user.id;
 
                 sendMessage.senderName = user.login;
+
                 sendMessage.chatId = parseLong(tokens[1]);
+
 
                 StringBuilder strB = new StringBuilder();
                 for (int i = 2; i < tokens.length; i++) {
@@ -166,10 +197,12 @@ public class MessengerClient {
                 }
 
                 sendMessage.text = strB.toString();
-                send(sendMessage);
+                clientCommunicator.sendMessage(sendMessage);
                 break;
             // TODO: implement another types from wiki
-
+            case "/q":
+                socketListenerThread.interrupt();
+                return;
             default:
                 log.error("Invalid input: " + line);
         }
@@ -178,11 +211,16 @@ public class MessengerClient {
     /**
      * Отправка сообщения в сокет клиент -> сервер
      */
+    /*
     public void send(Message msg) throws IOException, ProtocolException {
         log.info(msg.toString());
-        out.write(protocol.encode(msg));
-        out.flush(); // принудительно проталкиваем буфер с данными
+        //out.write(protocol.encode(msg));
+        //out.flush(); // принудительно проталкиваем буфер с данными
+
+        oos.writeObject(msg);
+        oos.flush();
     }
+*/
 
     public static void main(String[] args) throws Exception {
 
@@ -191,17 +229,15 @@ public class MessengerClient {
         client.setPort(19000);
         client.setProtocol(new StringProtocol());
 
+
         try {
             client.initSocket();
-
             // Цикл чтения с консоли
             Scanner scanner = new Scanner(System.in);
             System.out.println("$");
             while (true) {
                 String input = scanner.nextLine();
-                if ("q".equals(input)) {
-                    return;
-                }
+
                 try {
                     client.processInput(input);
                 } catch (ProtocolException | IOException e) {
@@ -211,10 +247,8 @@ public class MessengerClient {
         } catch (Exception e) {
             log.error("Application failed.", e);
         } finally {
-            if (client != null) {
-                // TODO
-//                client.close();
-            }
+
         }
     }
+
 }
